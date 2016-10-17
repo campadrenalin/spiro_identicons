@@ -1,11 +1,11 @@
 package art
 
 import (
+	"github.com/llgcode/draw2d/draw2dimg"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/png"
-	// "github.com/llgcode/draw2d/draw2dimg"
 
 	"crypto/md5"
 	"io"
@@ -39,5 +39,11 @@ func (r *Request) RenderPNG(w io.Writer) {
 	bg_color := color.RGBA{0, 0, 0, 0xff}
 	img := image.NewRGBA(image.Rect(0, 0, r.width, r.height))
 	draw.Draw(img, img.Bounds(), &image.Uniform{bg_color}, image.ZP, draw.Src)
+
+	// Draw actual spiro
+	gc := draw2dimg.NewGraphicContext(img)
+	t := NewTracer(r)
+	t.Draw(gc, color.White)
+
 	encoder.Encode(w, img)
 }
