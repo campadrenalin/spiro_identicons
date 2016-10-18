@@ -35,6 +35,11 @@ func (r *Request) Consume() int {
 	return int(first)
 }
 
+func (r *Request) SetSize(size int) {
+	r.width = size
+	r.height = size
+}
+
 func (r *Request) RenderPNG(w io.Writer) {
 	bg_color := color.RGBA{0, 0, 0, 0xff}
 	img := image.NewRGBA(image.Rect(0, 0, r.width, r.height))
