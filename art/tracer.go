@@ -9,6 +9,7 @@ import (
 
 const quality = 500
 const radiusOuter = 0.5 // Like most measurements, this is normalized to [-1,1] screen coords
+const offsetRange = 0.1
 
 type Tracer struct {
 	width   float64
@@ -31,12 +32,17 @@ func NewTracer(r *Request) Tracer {
 		width:   w,
 		height:  h,
 		scale:   (w + h) / 2,
-		offsetX: animate(-0.05, 0.05),
-		offsetY: animate(-0.05, 0.05),
+		offsetX: animate(-offsetRange, offsetRange),
+		offsetY: animate(-offsetRange, offsetRange),
 
 		radiusInner:  radiusOuter / float64(r.numLeaves),
 		radiusMarker: 0.08,
 	}
+}
+
+func (t *Tracer) Step() {
+	t.offsetX.Step()
+	t.offsetY.Step()
 }
 
 func (t Tracer) PointFor(phi float64) Point {

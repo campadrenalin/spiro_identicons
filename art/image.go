@@ -41,14 +41,19 @@ func (r *Request) SetSize(size int) {
 }
 
 func (r *Request) RenderPNG(w io.Writer) {
-	bg_color := color.RGBA{0, 0, 0, 0xff}
+	bg_color := color.RGBA{0x55, 0, 0, 0xff}
 	img := image.NewRGBA(image.Rect(0, 0, r.width, r.height))
 	draw.Draw(img, img.Bounds(), &image.Uniform{bg_color}, image.ZP, draw.Src)
 
 	// Draw actual spiro
 	gc := draw2dimg.NewGraphicContext(img)
 	t := NewTracer(r)
-	t.Draw(gc, color.White)
+	// This doesn't work as expected.
+	// TODO: Palettes!
+	for opacity := 0xff; opacity > 0; opacity -= 0x30 {
+		t.Draw(gc, color.RGBA{0xff, 0xff, uint8(opacity), 0xff})
+		t.Step()
+	}
 
 	encoder.Encode(w, img)
 }
