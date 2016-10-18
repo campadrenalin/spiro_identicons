@@ -8,23 +8,27 @@ import (
 )
 
 const quality = 500
-const radiusOuter = float64(2 * 3 * 5 * 7) // Divides evenly for all the primes/leaf counts we care about
+const radiusOuter = 0.5 // Like most measurements, this is normalized to [-1,1] screen coords
 
 type Tracer struct {
 	centerX float64
 	centerY float64
+	scale   float64
 
 	radiusInner  float64
 	radiusMarker float64
 }
 
 func NewTracer(r *Request) Tracer {
+	w := float64(r.width)
+	h := float64(r.height)
 	return Tracer{
-		centerX: float64(r.width) / 2,
-		centerY: float64(r.height) / 2,
+		centerX: w / 2,
+		centerY: h / 2,
+		scale:   (w + h) / 2,
 
 		radiusInner:  radiusOuter / float64(r.numLeaves),
-		radiusMarker: 100,
+		radiusMarker: 0.08,
 	}
 }
 
@@ -39,6 +43,7 @@ func (t Tracer) PointFor(phi float64) Point {
 	marker.Rotate(phi)
 
 	// Finishing touches
+	marker.Scale(t.scale)
 	marker.Translate(t.centerX, t.centerY)
 
 	return marker
@@ -55,7 +60,7 @@ func (t Tracer) Draw(gc *draw2dimg.GraphicContext, col color.Color) {
 	first := points[0]
 
 	gc.SetStrokeColor(col)
-	gc.SetLineWidth(5)
+	gc.SetLineWidth(t.scale * 0.02)
 
 	gc.MoveTo(first.x, first.y)
 	for _, p := range points[1:] {
