@@ -11,9 +11,11 @@ const quality = 500
 const radiusOuter = 0.5 // Like most measurements, this is normalized to [-1,1] screen coords
 
 type Tracer struct {
-	centerX float64
-	centerY float64
+	width   float64
+	height  float64
 	scale   float64
+	offsetX Animation
+	offsetY Animation
 
 	radiusInner  float64
 	radiusMarker float64
@@ -22,10 +24,15 @@ type Tracer struct {
 func NewTracer(r *Request) Tracer {
 	w := float64(r.width)
 	h := float64(r.height)
+	animate := func(min, max float64) Animation {
+		return NewAnimation(r.Consume(), min, max)
+	}
 	return Tracer{
-		centerX: w / 2,
-		centerY: h / 2,
+		width:   w,
+		height:  h,
 		scale:   (w + h) / 2,
+		offsetX: animate(-0.05, 0.05),
+		offsetY: animate(-0.05, 0.05),
 
 		radiusInner:  radiusOuter / float64(r.numLeaves),
 		radiusMarker: 0.08,
@@ -43,8 +50,9 @@ func (t Tracer) PointFor(phi float64) Point {
 	marker.Rotate(phi)
 
 	// Finishing touches
+	marker.Translate(t.offsetX.Float64(), t.offsetY.Float64())
 	marker.Scale(t.scale)
-	marker.Translate(t.centerX, t.centerY)
+	marker.Translate(t.width/2, t.height/2)
 
 	return marker
 }
